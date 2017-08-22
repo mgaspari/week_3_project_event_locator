@@ -5,26 +5,19 @@ class DataGet
 
   attr_accessor :link, :request
 
-  def initialize
-    @link = "https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&apikey=ICMptHAMURNy82YswWCiPVsIENGeTxRl"
+  def initialize(city)
+    inputCity = city
+    startDate = "2017-08-23T00:00:00Z"
+    @link = "https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&city=#{inputCity}&startDateTime=#{startDate}&apikey=vZJkJkrliPbqA8RP1qsXrYlAg6YSns8m"
     @request = JSON.parse(RestClient.get(self.link))
     "k"
   end
 
-  def find_match_city(name)
-    #new
+  def return_events_under_max(user_max)
     @request["_embedded"]["events"].select do |event|
-      event["embedded"]["venues"][0]["city"]["name"] == name
+     event["priceRanges"][0]["max"] < user_max
     end
   end
-
-  def create_events(arrayEvents)
-    # save this for another class
-    # arrayEvents.each do |event|
-    #
-    # end
-  end
-
 end
 
 binding.pry
