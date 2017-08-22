@@ -10,18 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170821204107) do
+ActiveRecord::Schema.define(version: 20170822171634) do
 
   create_table "events", force: :cascade do |t|
     t.text "name"
-    t.integer "price"
     t.text "city"
-    t.text "state"
-    t.time "time"
     t.date "date"
     t.text "url"
-    t.integer "most_money"
-    t.integer "min_money"
+    t.string "price_range"
   end
 
   create_table "favorites", force: :cascade do |t|
