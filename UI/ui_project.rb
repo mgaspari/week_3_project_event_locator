@@ -1,7 +1,8 @@
 require_relative '../config/environment.rb'
-
+require 'twilio-ruby'
+require 'twitter'
 class InterfaceApp
-  attr_accessor :city, :date, :price, :name, :data, :to_search, :min, :max, :testBool, :user_instance
+  attr_accessor :city, :date, :price, :name, :data, :to_search, :min, :max, :testBool, :user_instance, :phoneNumber
 
   def user_selection
     @testBool = true
@@ -11,10 +12,12 @@ class InterfaceApp
     B. Show more
     C. New search
     D. View Favorites
-    E. Exit"
+    E. Share an event with a friend
+    F. Let everyone know you're going to an event
+    G. Exit"
     puts "Please type the associated letter for the choices above"
     user_alphabet_answer = gets.chomp.upcase
-    if user_alphabet_answer == "A" || user_alphabet_answer == "B" || user_alphabet_answer == "C" || user_alphabet_answer == "D" || user_alphabet_answer == "E"
+    if user_alphabet_answer == "A" || user_alphabet_answer == "B" || user_alphabet_answer == "C" || user_alphabet_answer == "D" || user_alphabet_answer == "E" || user_alphabet_answer == "F" || user_alphabet_answer == "G"
       self.selection_switch(user_alphabet_answer)
       @testBool = false
     else
@@ -22,6 +25,19 @@ class InterfaceApp
     end
     end
   end
+
+  def full_send(user_answer)
+    account_sid = "ACaecd121efb5062f699ef7eb8d74f7734"
+    auth_token = "3a1c87d9e267e27b4e1d59cd033adcc4"
+    client = Twilio::REST::Client.new account_sid, auth_token
+    client.messages.create(
+      from: "+12019034298",
+      to: "+1#{@phoneNumber}",
+      body: "Hi! Your friend #{@name} wants to share an event in #{@city} on #{@date}. Check it out #{@data[user_answer.to_i - 1][1]}"
+      )
+      puts "Message sent!"
+      self.user_selection
+    end
 
   def create_everything(user_number)
     #take a user instance and create favorite and pass in the created event
@@ -59,19 +75,52 @@ class InterfaceApp
     self.user_selection
   end
 
+  def send_to_friend
+    puts "Which event would you like to share (Please select the number associated with the event.)?"
+    answer = gets.chomp
+    puts "What is your friend's phone number?"
+    @phoneNumber = gets.chomp
+    self.full_send(answer)
+  end
+
+  def actually_tweet(handle, answer)
+
+    client = Twitter::REST::Client.new do |config|
+      config.consumer_key        = "ZoE0ZImGOtzOXUinzOZiRC6Zd"
+      config.consumer_secret     = "mNjRh4VmQ0RnDwccJJ64vJnyuwAlJyz1R7eyX7QAPUy3GZ5NAv"
+      config.access_token        = "900371662520111104-sTfrxVrWhzzPD6WsfF1FNmdK2M1jpjH"
+      config.access_token_secret = "YwYAoEzRiznCbRhuVfvmILevy0bjEj1Xz3dfKwuyaNg7S"
+    end
+
+    client.update("#{handle} is going to #{@data[answer.to_i - 1][0]} in #{city}!")
+    puts "Tweet sent!"
+  end
+
+  def send_tweet
+    puts "Please type in your Twitter handle."
+    twitter_handle = gets.chomp
+    puts "Which event would you like to Tweet about?"
+    event_tweet = gets.chomp
+    self.actually_tweet(twitter_handle, event_tweet)
+    self.user_selection
+  end
+
   def selection_switch(letter)
     case letter
     when "A"
       self.adding_to_favorites
     when "B"
       @min += 5
-
       self.present_results(@min, @max)
     when "C"
       @to_search = true
     when "D"
       self.view_favorites
     when "E"
+      self.send_to_friend
+    when "F"
+      self.send_tweet
+    when "G"
       puts "Thank you for using Ticketmaster!"
       exit!
     end
