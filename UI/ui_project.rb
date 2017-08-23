@@ -1,6 +1,8 @@
 require_relative '../config/environment.rb'
 require 'twilio-ruby'
 require 'twitter'
+require 'launchy'
+
 class InterfaceApp
   attr_accessor :city, :date, :price, :name, :data, :to_search, :min, :max, :testBool, :user_instance, :phoneNumber
 
@@ -14,10 +16,11 @@ class InterfaceApp
     D. View Favorites
     E. Share an event with a friend
     F. Let everyone know you're going to an event
-    G. Exit"
+    G. Take me to an events webpage
+    H. Exit"
     puts "Please type the associated letter for the choices above"
     user_alphabet_answer = gets.chomp.upcase
-    if user_alphabet_answer == "A" || user_alphabet_answer == "B" || user_alphabet_answer == "C" || user_alphabet_answer == "D" || user_alphabet_answer == "E" || user_alphabet_answer == "F" || user_alphabet_answer == "G"
+    if user_alphabet_answer == "A" || user_alphabet_answer == "B" || user_alphabet_answer == "C" || user_alphabet_answer == "D" || user_alphabet_answer == "E" || user_alphabet_answer == "F" || user_alphabet_answer == "G" || user_alphabet_answer == "H"
       self.selection_switch(user_alphabet_answer)
       @testBool = false
     else
@@ -105,22 +108,36 @@ class InterfaceApp
     self.user_selection
   end
 
+  def take_me_to_event_page
+    puts "Please select the corresponding number for an event's website."
+    event_url = gets.chomp
+    Launchy.open("#{@data[event_url.to_i - 1][1]}")
+  end
+
   def selection_switch(letter)
     case letter
     when "A"
+      system "clear"
       self.adding_to_favorites
     when "B"
       @min += 5
       self.present_results(@min, @max)
     when "C"
+      system "clear"
       @to_search = true
     when "D"
+      system "clear"
       self.view_favorites
     when "E"
+      system "clear"
       self.send_to_friend
     when "F"
+      system "clear"
       self.send_tweet
     when "G"
+      self.take_me_to_event_page
+    when "H"
+      system "clear"
       puts "Thank you for using Ticketmaster!"
       exit!
     end
@@ -152,7 +169,7 @@ class InterfaceApp
     if @max == (@data.size - 1)
       puts "There are no more results."
     end
-
+    puts "--------------" * 7
     self.user_selection
   end
 
@@ -160,17 +177,22 @@ class InterfaceApp
 
   def user_interface_tm
     @to_search = true
+    system "clear"
     puts "Welcome to Ticketmaster! Let us help you find local events! What is your name?"
     @name = gets.chomp.titleize
+    system "clear"
     @user_instance = User.create(name: @name)
     # User.create(name: @name)
     while @to_search == true
     puts "Hi #{@name}, please type in the city where you'd like to look:"
     @city = gets.chomp.titleize
+    system "clear"
     puts "What date for shows in #{@city}? (Format: yyyy-mm-dd)"
     @date = gets.chomp
+    system "clear"
     puts "Awesome! Around how much are you looking to spend?"
     @price = gets.chomp.tr('$', '').to_i
+    puts "Please wait as we load the events..."
     #call function to get events here
     @to_search = false
     m = DataGet.new(@city, @date, @price)
@@ -178,6 +200,7 @@ class InterfaceApp
     #call function to output first 5 values
     # puts "Thank you #{name}, one moment"
     # things_in = gets.chomp
+    system "clear"
     self.present_results(0, @data.size - 1)
     #asks for the user to input from a selection
 

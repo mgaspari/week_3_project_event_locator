@@ -38,6 +38,8 @@ GEM
     i18n (0.8.6)
     json (1.8.3)
     jwt (1.5.6)
+    launchy (2.4.3)
+      addressable (~> 2.3)
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
     method_source (0.8.2)
@@ -117,6 +119,7 @@ DEPENDENCIES
   activerecord
   database_cleaner
   json
+  launchy
   pry
   rake
   require_all
