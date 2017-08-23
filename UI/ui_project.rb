@@ -4,20 +4,18 @@ require 'twitter'
 require 'launchy'
 
 class InterfaceApp
-  attr_accessor :city, :date, :price, :name, :data, :to_search, :min, :max, :testBool, :user_instance, :phoneNumber
+  attr_accessor :city, :date, :price, :name, :data, :to_search, :min, :max, :testBool, :user_instance, :phoneNumber, :testBoolEvent, :event_num
 
   def user_selection
     @testBool = true
     while @testBool == true
     puts "
-    A. Make favorite
+    A. Select event
     B. Show more
     C. New search
     D. View Favorites
-    E. Share an event with a friend
-    F. Let everyone know you're going to an event
-    G. Take me to an events webpage
-    H. Exit"
+    E. Exit"
+    puts "--------------" * 7
     puts "Please type the associated letter for the choices above"
     user_alphabet_answer = gets.chomp.upcase
     if user_alphabet_answer == "A" || user_alphabet_answer == "B" || user_alphabet_answer == "C" || user_alphabet_answer == "D" || user_alphabet_answer == "E" || user_alphabet_answer == "F" || user_alphabet_answer == "G" || user_alphabet_answer == "H"
@@ -29,16 +27,18 @@ class InterfaceApp
     end
   end
 
-  def full_send(user_answer)
+
+  def full_send
     account_sid = ""
     auth_token = ""
     client = Twilio::REST::Client.new account_sid, auth_token
     client.messages.create(
       from: "+12019034298",
       to: "+1#{@phoneNumber}",
-      body: "Hi! Your friend #{@name} wants to share an event in #{@city} on #{@date}. Check it out #{@data[user_answer.to_i - 1][1]}"
+      body: "Hi! Your friend #{@name} wants to share an event in #{@city} on #{@date}. Check it out #{@data[@event_num.to_i - 1][1]}"
       )
       puts "Message sent!"
+      self.pull_up_event
       self.user_selection
     end
 
@@ -58,20 +58,21 @@ class InterfaceApp
   end
 
   def adding_to_favorites
-    puts "Please select the event number that you would like to save as your favorite."
+    # puts "Please select the event number that you would like to save as your favorite."
     valid = true
     while valid
-      event_selection = gets.chomp
+      event_selection = @event_num
       if event_selection.to_i < data.size - 1 && event_selection.to_i > 0
         create_everything(event_selection)
         valid = false
       end
     end
+    self.pull_up_event
     self.user_selection
   end
 
   def view_favorites
-    all = Event.all
+    all = @user_instance.events
     all.each do |event|
       puts "#{event.name}"
     end
@@ -79,14 +80,14 @@ class InterfaceApp
   end
 
   def send_to_friend
-    puts "Which event would you like to share (Please select the number associated with the event.)?"
-    answer = gets.chomp
+    # puts "Which event would you like to share (Please select the number associated with the event.)?"
+    # answer = gets.chomp
     puts "What is your friend's phone number?"
     @phoneNumber = gets.chomp
-    self.full_send(answer)
+    self.full_send
   end
 
-  def actually_tweet(handle, answer)
+  def actually_tweet(handle)
 
     client = Twitter::REST::Client.new do |config|
       config.consumer_key        = ""
@@ -95,30 +96,80 @@ class InterfaceApp
       config.access_token_secret = ""
     end
 
-    client.update("#{handle} is going to #{@data[answer.to_i - 1][0]} in #{city}!")
+    client.update("#{handle} is going to #{@data[@event_num.to_i - 1][0]} in #{city}!")
     puts "Tweet sent!"
   end
 
   def send_tweet
     puts "Please type in your Twitter handle."
     twitter_handle = gets.chomp
-    puts "Which event would you like to Tweet about?"
-    event_tweet = gets.chomp
-    self.actually_tweet(twitter_handle, event_tweet)
+    self.actually_tweet(twitter_handle)
+    self.pull_up_event
     self.user_selection
   end
 
   def take_me_to_event_page
-    puts "Please select the corresponding number for an event's website."
-    event_url = gets.chomp
-    Launchy.open("#{@data[event_url.to_i - 1][1]}")
+    Launchy.open("#{@data[@event_num.to_i - 1][1]}")
+    self.pull_up_event
+    self.user_selection
   end
+
+
+  def user_selection_event
+    @testBoolEvent = true
+    while @testBoolEvent == true
+    puts "
+    A. Make favorite
+    B. Share an event with a friend
+    C. Let everyone know you're going to an event
+    D. Buy tickets for event
+    E. Go back"
+    puts "Please type the associated letter for the choices above"
+    user_alphabet_answer = gets.chomp.upcase
+    if user_alphabet_answer == "A" || user_alphabet_answer == "B" || user_alphabet_answer == "C" || user_alphabet_answer == "D" || user_alphabet_answer == "E"
+      self.selection_switch_event(user_alphabet_answer)
+      @testBoolEvent = false
+    else
+      puts "Please enter a correct letter!"
+    end
+    end
+  end
+
+
+
+  def selection_switch_event(letter)
+    case letter
+    when "A"
+      self.adding_to_favorites
+    when "B"
+      self.send_to_friend
+    when "C"
+      system "clear"
+      self.send_tweet
+    when "D"
+      self.take_me_to_event_page
+    when "E"
+      system "clear"
+      self.present_results
+      self.user_selection
+    end
+  end
+
+  def pull_up_event
+    @data[@event_num.to_i - 1].each do |val|
+      puts val
+    end
+    self.user_selection_event
+  end
+
 
   def selection_switch(letter)
     case letter
     when "A"
+      puts "Please select the number of the event you would like to see."
+      @event_num = gets.chomp
       system "clear"
-      self.adding_to_favorites
+      self.pull_up_event
     when "B"
       @min += 5
       self.present_results(@min, @max)
@@ -129,14 +180,6 @@ class InterfaceApp
       system "clear"
       self.view_favorites
     when "E"
-      system "clear"
-      self.send_to_friend
-    when "F"
-      system "clear"
-      self.send_tweet
-    when "G"
-      self.take_me_to_event_page
-    when "H"
       system "clear"
       puts "Thank you for using Ticketmaster!"
       exit!
@@ -181,7 +224,7 @@ class InterfaceApp
     puts "Welcome to Ticketmaster! Let us help you find local events! What is your name?"
     @name = gets.chomp.titleize
     system "clear"
-    @user_instance = User.create(name: @name)
+    @user_instance = User.find_or_create_by(name: @name)
     # User.create(name: @name)
     while @to_search == true
     puts "Hi #{@name}, please type in the city where you'd like to look:"
