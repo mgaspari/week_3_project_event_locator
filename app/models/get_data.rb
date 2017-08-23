@@ -27,7 +27,7 @@ class DataGet
   def return_events_under_max
     @selected_events =  @request["_embedded"]["events"].select do |event|
 
-      event["priceRanges"] && event["priceRanges"][0]["max"] < @price
+      event["priceRanges"] && event["priceRanges"][0]["min"] < @price
     #  event["priceRanges"][0]["max"] < user_max
      #puts event["priceRanges"]
     end
