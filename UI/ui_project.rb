@@ -27,8 +27,8 @@ class InterfaceApp
   end
 
   def full_send(user_answer)
-    account_sid = "ACaecd121efb5062f699ef7eb8d74f7734"
-    auth_token = "3a1c87d9e267e27b4e1d59cd033adcc4"
+    account_sid = ""
+    auth_token = ""
     client = Twilio::REST::Client.new account_sid, auth_token
     client.messages.create(
       from: "+12019034298",
@@ -86,10 +86,10 @@ class InterfaceApp
   def actually_tweet(handle, answer)
 
     client = Twitter::REST::Client.new do |config|
-      config.consumer_key        = "ZoE0ZImGOtzOXUinzOZiRC6Zd"
-      config.consumer_secret     = "mNjRh4VmQ0RnDwccJJ64vJnyuwAlJyz1R7eyX7QAPUy3GZ5NAv"
-      config.access_token        = "900371662520111104-sTfrxVrWhzzPD6WsfF1FNmdK2M1jpjH"
-      config.access_token_secret = "YwYAoEzRiznCbRhuVfvmILevy0bjEj1Xz3dfKwuyaNg7S"
+      config.consumer_key        = ""
+      config.consumer_secret     = ""
+      config.access_token        = ""
+      config.access_token_secret = ""
     end
 
     client.update("#{handle} is going to #{@data[answer.to_i - 1][0]} in #{city}!")
