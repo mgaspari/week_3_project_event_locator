@@ -14,7 +14,8 @@ class InterfaceApp
     B. Show more
     C. New search
     D. View Favorites
-    E. Exit"
+    E. Exit
+    "
     puts "--------------" * 7
     puts "Please type the associated letter for the choices above"
     user_alphabet_answer = gets.chomp.upcase
@@ -37,7 +38,10 @@ class InterfaceApp
       to: "+1#{@phoneNumber}",
       body: "Hi! Your friend #{@name} wants to share an event in #{@city} on #{@date}. Check it out #{@data[@event_num.to_i - 1][1]}"
       )
+      system "clear"
       puts "Message sent!"
+      puts "
+      "
       self.pull_up_event
       self.user_selection
     end
@@ -72,10 +76,16 @@ class InterfaceApp
   end
 
   def view_favorites
+    puts "
+    "
+    puts "Here is your list of favorited events:"
     all = @user_instance.events
-    all.each do |event|
-      puts "#{event.name}"
+    all.each_with_index do |event, index|
+      puts "#{index + 1}. #{event.name}"
     end
+    puts "
+    " * 2
+    puts "--------------" * 7
     self.user_selection
   end
 
@@ -97,7 +107,10 @@ class InterfaceApp
     end
 
     client.update("#{handle} is going to #{@data[@event_num.to_i - 1][0]} in #{city}!")
+    system "clear"
     puts "Tweet sent!"
+    puts "
+    "
   end
 
   def send_tweet
@@ -118,12 +131,14 @@ class InterfaceApp
   def user_selection_event
     @testBoolEvent = true
     while @testBoolEvent == true
+    puts "--------------" * 7
     puts "
     A. Make favorite
     B. Share an event with a friend
     C. Let everyone know you're going to an event
     D. Buy tickets for event
     E. Go back"
+    puts "--------------" * 7
     puts "Please type the associated letter for the choices above"
     user_alphabet_answer = gets.chomp.upcase
     if user_alphabet_answer == "A" || user_alphabet_answer == "B" || user_alphabet_answer == "C" || user_alphabet_answer == "D" || user_alphabet_answer == "E"
@@ -150,8 +165,8 @@ class InterfaceApp
       self.take_me_to_event_page
     when "E"
       system "clear"
+      @testBool = true
       self.present_results
-      self.user_selection
     end
   end
 
@@ -166,6 +181,20 @@ class InterfaceApp
   def selection_switch(letter)
     case letter
     when "A"
+      system "clear"
+      r = @min..@max
+      # i = min
+      puts "Your results are:"
+
+      for i in r
+        puts "
+        #{i + 1}
+        Event: #{@data[i][0]}
+        URL: #{@data[i][1]}
+        Price: #{@data[i][2]}
+        "
+      end
+      puts "--------------" * 7
       puts "Please select the number of the event you would like to see."
       @event_num = gets.chomp
       system "clear"
